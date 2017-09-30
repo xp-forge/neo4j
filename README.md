@@ -26,7 +26,7 @@ foreach ($q as $record) {
 }
 ```
 
-Formatting parameters uses *printf*-like format tokens:
+Formatting parameters uses *printf*-like format tokens. These will take care of proper escaping and type casting:
 
 ```php
 use com\neo4j\Graph;
@@ -37,6 +37,6 @@ $g->query(
   'CREATE (t:Topic) SET t.name = %s, t.canonical = %s, t.created = %d',
   $name,
   $canonical,
-  time()
+  time() * 1000
 );
 ```
