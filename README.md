@@ -1,5 +1,5 @@
-Neo4J Connector
-===============
+Neo4J connectivity
+==================
 
 [![Build Status on TravisCI](https://secure.travis-ci.org/xp-forge/neo4j.svg)](http://travis-ci.org/xp-forge/neo4j)
 [![XP Framework Module](https://raw.githubusercontent.com/xp-framework/web/master/static/xp-framework-badge.png)](https://github.com/xp-framework/core)
@@ -40,3 +40,19 @@ $g->query(
   time() * 1000
 );
 ```
+
+Batch statements can be executed via the `execute()` method.
+
+Format characters
+-----------------
+
+* `%s`: Format a string
+* `%d`: Format a decimal number
+* `%f`: Format a floating point numer
+* `%b`: Format a boolean
+* `%v`: Copy value into parameter
+* `%l`: Copy label into query
+* `%c`: Copy literal into query
+* `%%`: A literal percent sign
+
+Positional parameters (starting at 1) may be used, e.g. `%2$s`.
