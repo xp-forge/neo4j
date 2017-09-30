@@ -1,7 +1,11 @@
 <?php namespace com\neo4j;
 
-use webservices\rest\Endpoint;
-use webservices\rest\RestFormat;
+use peer\http\HttpConnection;
+use peer\http\HttpRequest;
+use peer\http\RequestData;
+use text\json\Json;
+use text\json\Format;
+use text\json\StreamInput;
 
 /**
  * Neo4J interface using its HTTP API
@@ -11,16 +15,18 @@ use webservices\rest\RestFormat;
  * @test  xp://com.neo4j.unittest.GraphTest
  */
 class Graph implements \lang\Value {
-  private $endpoint, $cypher;
+  private $conn, $cypher, $json, $base;
 
   /**
    * Creates a new Neo4J graph connection
    *
-   * @param  string $url
+   * @param  string|peer.URL|peer.http.HttpConnection $endpoint
    */
-  public function __construct($url) {
-    $this->endpoint= new Endpoint($url);
+  public function __construct($endpoint) {
+    $this->conn= $endpoint instanceof HttpConnection ? $endpoint : new HttpConnection($endpoint);
     $this->cypher= new Cypher();
+    $this->json= Format::dense();
+    $this->base= rtrim($this->conn->getURL()->getPath(), '/');
   }
 
   /**
@@ -30,7 +36,19 @@ class Graph implements \lang\Value {
    * @return [:var] Results
    */
   protected function commit($payload) {
-    return $this->endpoint->resource('transaction/commit')->with(['X-Stream' => 'true'])->post($payload, RestFormat::$JSON)->data();
+    $req= $this->conn->create(new HttpRequest());
+    $req->setMethod('POST');
+    $req->setTarget($this->base.'/transaction/commit');
+    $req->setHeader('X-Stream', 'true');
+    $req->setHeader('Content-Type', 'application/json');
+    $req->setParameters(new RequestData(Json::of($payload, $this->json)));
+
+    $res= $this->conn->send($req);
+    if (200 !== $res->statusCode()) {
+      throw new QueryFailed(['Unexpected HTTP response status '.$res->statusCode()]);
+    }
+
+    return Json::read(new StreamInput($res->in()));
   }
 
   /**
@@ -95,7 +113,7 @@ class Graph implements \lang\Value {
 
   /** @return string */
   public function toString() {
-    return nameof($this).'(->'.$this->endpoint->toString().')';
+    return nameof($this).'(->'.$this->conn->toString().')';
   }
 
   /** @return string */
