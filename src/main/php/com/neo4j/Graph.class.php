@@ -10,7 +10,7 @@ use webservices\rest\RestFormat;
  * @see   https://neo4j.com/blog/streaming-rest-api-interview-with-michael-hunger/
  * @test  xp://com.neo4j.unittest.GraphTest
  */
-class Graph {
+class Graph implements \lang\Value {
   private $endpoint, $cypher;
 
   /**
@@ -91,5 +91,25 @@ class Graph {
     } else {
       throw new QueryFailed($response['errors']);
     }
+  }
+
+  /** @return string */
+  public function toString() {
+    return nameof($this).'(->'.$this->endpoint->toString().')';
+  }
+
+  /** @return string */
+  public function hashCode() {
+    return spl_object_hash($this);
+  }
+
+  /**
+   * Comparison
+   *
+   * @param  var $value
+   * @return int
+   */
+  public function compareTo($value) {
+    return $this === $value ? 0 : 1;
   }
 }
