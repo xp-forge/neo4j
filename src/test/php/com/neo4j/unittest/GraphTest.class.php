@@ -1,7 +1,9 @@
 <?php namespace com\neo4j\unittest;
 
-use com\neo4j\{Graph, QueryFailed};
-use lang\{FormatException, IndexOutOfBoundsException};
+use com\neo4j\Graph;
+use com\neo4j\QueryFailed;
+use lang\FormatException;
+use lang\IndexOutOfBoundsException};
 
 class GraphTest extends \unittest\TestCase {
   public static $ROW = ['columns' => ['id(n)'], 'data' => [['row' => [6], 'meta' => [null]]]];

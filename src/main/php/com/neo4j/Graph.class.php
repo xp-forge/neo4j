@@ -1,6 +1,7 @@
 <?php namespace com\neo4j;
 
-use webservices\rest\{Endpoint, RestFormat};
+use webservices\rest\Endpoint;
+use webservices\rest\RestFormat;
 
 /**
  * Neo4J interface using its HTTP API
@@ -32,10 +33,24 @@ class Graph {
     return $this->endpoint->resource('transaction/commit')->with(['X-Stream' => 'true'])->post($payload, RestFormat::$JSON)->data();
   }
 
+  /**
+   * Prepares a cypher query
+   *
+   * @param  string $cypher
+   * @param  var... $args
+   * @return [:var] query
+   */
   public function prepare($cypher, ... $args) {
     return $this->cypher->format($cypher, ...$args);
   }
 
+  /**
+   * Runs a single query and yields its results
+   *
+   * @param  string $cypher
+   * @param  var... $args
+   * @return iterable
+   */
   public function open($cypher, ... $args) {
     $result= $this->execute([$this->cypher->format($cypher, ...$args)])[0];
     foreach ($result['data'] as $data) {
@@ -47,10 +62,23 @@ class Graph {
     }
   }
 
+  /**
+   * Runs a single query and returns its results in an array
+   *
+   * @param  string $cypher
+   * @param  var... $args
+   * @return iterable
+   */
   public function query($cypher, ... $args) {
     return iterator_to_array($this->open($cypher, ...$args));
   }
 
+  /**
+   * Executes multiple statements
+   *
+   * @param  [:var][] $statements
+   * @return var[]
+   */
   public function execute($statements) {
     $list= [];
     foreach ($statements as $statement) {
