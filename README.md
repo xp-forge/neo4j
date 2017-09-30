@@ -13,15 +13,30 @@ This library implements Neo4J connectivity via its REST API.
 
 Examples
 --------
-Running a query:
+Running a query can be done via `open()` (which yields one record at a time) or `query()` (which collects the results in an array):
 
 ```php
 use com\neo4j\Graph;
 use util\cmd\Console;
 
 $g= new Graph('http://user:pass@neo4j-db.example.com:7474/db/data');
-$q= $g->open('match (t:Topic) return t.name, t.canonical');
+$q= $g->open('MATCH (t:Topic) RETURN t.name, t.canonical');
 foreach ($q as $record) {
   Console::writeLine('#', $record['t.canonical'], ': ', $record['t.name']);
 }
+```
+
+Formatting parameters uses *printf*-like format tokens:
+
+```php
+use com\neo4j\Graph;
+use util\cmd\Console;
+
+$g= new Graph('http://user:pass@neo4j-db.example.com:7474/db/data');
+$g->query(
+  'CREATE (t:Topic) SET t.name = %s, t.canonical = %s, t.created = %d',
+  $name,
+  $canonical,
+  time()
+);
 ```
