@@ -1,6 +1,7 @@
 <?php namespace com\neo4j;
 
-use lang\{XPException, Throwable};
+use lang\XPException;
+use lang\Throwable;
 use util\Objects;
 
 class QueryFailed extends XPException {
