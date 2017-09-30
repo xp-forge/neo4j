@@ -20,7 +20,7 @@ class Graph implements \lang\Value {
   /**
    * Creates a new Neo4J graph connection
    *
-   * @param  string|peer.http.HttpConnection $endpoint
+   * @param  string|peer.URL|peer.http.HttpConnection $endpoint
    */
   public function __construct($endpoint) {
     $this->conn= $endpoint instanceof HttpConnection ? $endpoint : new HttpConnection($endpoint);
