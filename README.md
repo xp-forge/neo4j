@@ -33,12 +33,7 @@ use com\neo4j\Graph;
 use util\cmd\Console;
 
 $g= new Graph('http://user:pass@neo4j-db.example.com:7474/db/data');
-$g->query(
-  'CREATE (t:Topic) SET t.name = %s, t.canonical = %s, t.created = %d',
-  $name,
-  $canonical,
-  time() * 1000
-);
+$g->query('CREATE (p:Person) SET t.name = %s, t.id = %d', $name, $id);
 ```
 
 Batch statements can be executed via the `execute()` method.
