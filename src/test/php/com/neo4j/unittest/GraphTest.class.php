@@ -4,7 +4,7 @@ use com\neo4j\{Graph, QueryFailed};
 use lang\{FormatException, IndexOutOfBoundsException};
 
 class GraphTest extends \unittest\TestCase {
-  const ROW = ['columns' => ['id(n)'], 'data' => [['row' => [6], 'meta' => [null]]]];
+  public static $ROW = ['columns' => ['id(n)'], 'data' => [['row' => [6], 'meta' => [null]]]];
   private static $ECHO;
 
   static function __static() {
@@ -21,19 +21,16 @@ class GraphTest extends \unittest\TestCase {
   }
 
   /** Creates a fixture with a given function for producing results */
-  private function newFixture(callable $resultsFor= null): Graph {
-    return new class($resultsFor ?: function($payload) { return null; }) extends Graph {
-      private $resultsFor;
-
-      public function __construct($resultsFor) {
+  private function newFixture($resultsFor= null) {
+    return newinstance(Graph::class, [$resultsFor ?: function($payload) { return null; }], [
+      '__construct' => function($resultsFor) {
         parent::__construct('http://localhost:7474/db/data');
         $this->resultsFor= $resultsFor;
-      }
-
-      protected function commit($payload) {
+      },
+      'commit' => function($payload) {
         return $this->resultsFor->__invoke($payload);
       }
-    };
+    ]);
   }
 
   #[@test]
@@ -44,7 +41,7 @@ class GraphTest extends \unittest\TestCase {
   #[@test]
   public function query_returns_result() {
     $fixture= $this->newFixture(function($payload) {
-      return ['results' => [GraphTest::ROW], 'errors' => []];
+      return ['results' => [GraphTest::$ROW], 'errors' => []];
     });
     $this->assertEquals([['id(n)' => 6]], $fixture->query('...'));
   }
@@ -76,9 +73,9 @@ class GraphTest extends \unittest\TestCase {
   #[@test]
   public function execute_returns_result() {
     $fixture= $this->newFixture(function($payload) {
-      return ['results' => [GraphTest::ROW], 'errors' => []];
+      return ['results' => [GraphTest::$ROW], 'errors' => []];
     });
-    $this->assertEquals([GraphTest::ROW], $fixture->execute(['...']));
+    $this->assertEquals([GraphTest::$ROW], $fixture->execute(['...']));
   }
 
   #[@test, @expect(QueryFailed::class)]
