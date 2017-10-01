@@ -74,7 +74,7 @@ class BoltProtocol extends Protocol {
     $this->send(self::INIT, nameof($this), $this->init);
     $res= $this->receive();
     if (self::SUCCESS !== $res->signature) {
-      throw new CannotAuthenticate([$res->fields['metadata']]);
+      throw new CannotAuthenticate([$res->members['metadata']]);
     }
   }
 
@@ -108,7 +108,7 @@ class BoltProtocol extends Protocol {
 
       $res= $this->receive();
       if (self::FAILURE === $res->signature) {
-        $r['errors'][]= $res->fields['metadata'];
+        $r['errors'][]= $res->members['metadata'];
         $this->send(self::ACK_FAILURE);
         $this->receive();
       } else if (self::IGNORE === $res->signature) {
@@ -117,7 +117,7 @@ class BoltProtocol extends Protocol {
         $this->receive();
       } else {
         $this->send(self::PULL_ALL);
-        $r['results'][]= ['columns' => $res->fields['metadata']['fields'], 'data' => $this->records()];
+        $r['results'][]= ['columns' => $res->members['metadata']['fields'], 'data' => $this->records()];
       }
     }
     return $r;
