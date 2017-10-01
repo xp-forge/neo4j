@@ -191,6 +191,25 @@ class BoltProtocol extends Protocol {
     }
   }
 
+  /** @return [:var][] */
+  private function records() {
+    do {
+      $res= $this->receive();
+      if (self::RECORD === $res->signature) {
+        $row= [];
+        foreach ($res->fields['fields'] as $record) {
+          if ($record instanceof Struct) {
+            $row[]= $record->fields['properties'];
+          } else {
+            $row[]= $record;
+          }
+        }
+        $records[]= ['row' => $row, 'meta' => null];  // FIXME: Fill meta
+      }
+    } while (self::RECORD === $res->signature);
+    return $records;
+  }
+
   /**
    * Commits multiple statements using `transaction/commit` endpoint.
    *
@@ -218,25 +237,8 @@ class BoltProtocol extends Protocol {
         $this->send(self::RESET);
         $this->receive();
       } else {
-        $result= ['data' => [], 'columns' => $res->fields['metadata']['fields']];
-
         $this->send(self::PULL_ALL);
-        do {
-          $res= $this->receive();
-          if (self::RECORD === $res->signature) {
-            $row= [];
-            foreach ($res->fields['fields'] as $record) {
-              if ($record instanceof Struct) {
-                $row[]= $record->fields['properties'];
-              } else {
-                $row[]= $record;
-              }
-            }
-            $result['data'][]= ['row' => $row, 'meta' => null];  // FIXME: Fill meta
-          }
-        } while (self::RECORD === $res->signature);
-
-        $r['results'][]= $result;
+        $r['results'][]= ['columns' => $res->fields['metadata']['fields'], 'data' => $this->records()];
       }
     }
     return $r;
