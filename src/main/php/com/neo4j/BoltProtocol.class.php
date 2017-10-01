@@ -6,17 +6,19 @@ use peer\URL;
 class BoltProtocol extends Protocol {
   private $sock, $init, $serialization;
 
-  const PREAMBLE    = "\x60\x60\xb0\x17";
-  const INIT        = 0x01;
-  const ACK_FAILURE = 0x0e;
-  const RESET       = 0x0f;
-  const RUN         = 0x10;
-  const PULL_ALL    = 0x3f;
-  const NODE        = 0x4e;
-  const SUCCESS     = 0x70;
-  const RECORD      = 0x71;
-  const FAILURE     = 0x7f;
-  const IGNORE      = 0x7e;
+  const PREAMBLE            = "\x60\x60\xb0\x17";
+  const INIT                = 0x01;
+  const ACK_FAILURE         = 0x0e;
+  const RESET               = 0x0f;
+  const RUN                 = 0x10;
+  const PULL_ALL            = 0x3f;
+  const NODE                = 0x4e;
+  const PATH                = 0x50;
+  const SUCCESS             = 0x70;
+  const RECORD              = 0x71;
+  const UNBOUNDRELATIONSHIP = 0x72;
+  const FAILURE             = 0x7f;
+  const IGNORE              = 0x7e;
 
   /**
    * Creates a new Neo4J graph connection
@@ -80,15 +82,7 @@ class BoltProtocol extends Protocol {
     do {
       $res= $this->receive();
       if (self::RECORD === $res->signature) {
-        $row= [];
-        foreach ($res->fields['fields'] as $record) {
-          if ($record instanceof Struct) {
-            $row[]= $record->fields['properties'];
-          } else {
-            $row[]= $record;
-          }
-        }
-        $records[]= ['row' => $row, 'meta' => null];  // FIXME: Fill meta
+        $records[]= ['row' => $res->members['fields'], 'meta' => null];  // FIXME: Fill meta
       }
     } while (self::RECORD === $res->signature);
     return $records;
