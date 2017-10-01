@@ -6,7 +6,7 @@ use peer\URL;
 class BoltProtocol extends Protocol {
   private $sock, $init;
 
-  // Messages
+  const PREAMBLE    = "\x60\x60\xb0\x17";
   const INIT        = 0x01;
   const ACK_FAILURE = 0x0e;
   const RESET       = 0x0f;
@@ -61,7 +61,7 @@ class BoltProtocol extends Protocol {
         $r.= $this->encode($key).$this->encode($val);
       }
       return $r;
-      }
+    }
   }
 
   private function decode($value, &$offset) {
@@ -181,7 +181,7 @@ class BoltProtocol extends Protocol {
       $this->sock->connect();
 
       // Handshake
-      $this->sock->write(pack('ccccNNNN', 0x60, 0x60, 0xb0, 0x17, 1, 0, 0, 0));
+      $this->sock->write(self::PREAMBLE.pack('NNNN', 1, 0, 0, 0));
       $protocol= unpack('N', $this->sock->readBinary(4));
       if (0 === $protocol[1]) {
         throw new QueryFailed(['Protocol handshake failed, server does not support protocol version']);
@@ -191,7 +191,7 @@ class BoltProtocol extends Protocol {
       $this->send(self::INIT, nameof($this), $this->init);
       $res= $this->receive();
       if (self::SUCCESS !== $res->signature) {
-        throw new QueryFailed([$res->fields['metadata']]);
+        throw new CannotAuthenticate([$res->fields['metadata']]);
       }
     }
 

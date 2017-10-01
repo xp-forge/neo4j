@@ -7,6 +7,7 @@ use peer\http\RequestData;
 use text\json\Json;
 use text\json\Format;
 use text\json\StreamInput;
+use io\IOException;
 
 class HttpProtocol extends Protocol {
   private $conn, $json, $base;
@@ -36,11 +37,18 @@ class HttpProtocol extends Protocol {
     $req->setHeader('Content-Type', 'application/json');
     $req->setParameters(new RequestData(Json::of($payload, $this->json)));
 
-    $res= $this->conn->send($req);
-    if (200 !== $res->statusCode()) {
-      throw new QueryFailed(['Unexpected HTTP response status '.$res->statusCode(), $res->readData()]);
+    try {
+      $res= $this->conn->send($req);
+    } catch (IOException $e) {
+      throw new QueryFailed(['I/O error'], $e);
     }
 
-    return Json::read(new StreamInput($res->in()));
+    if (200 === $res->statusCode()) {
+      return Json::read(new StreamInput($res->in()));
+    } else if (401 === $res->statusCode()) {
+      throw new CannotAuthenticate([$res->readData()]);
+    } else {
+      throw new QueryFailed(['Unexpected HTTP response status '.$res->statusCode(), $res->readData()]);
+    }
   }
 }
