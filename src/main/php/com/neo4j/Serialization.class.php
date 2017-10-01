@@ -47,11 +47,19 @@ class Serialization {
     } else if (is_string($value)) {
       return $this->marker(0x80, 0xd0, strlen($value)).$value;
     } else if (is_array($value)) {
-      $r= $this->marker(0xa0, 0xd8, sizeof($value));
-      foreach ($value as $key => $val) {
-        $r.= $this->serialize($key).$this->serialize($val);
+      if (0 === key($value)) {
+        $r= $this->marker(0x90, 0xd4, sizeof($value));
+        foreach ($value as $val) {
+          $r.= $this->serialize($val);
+        }
+        return $r;
+      } else {
+        $r= $this->marker(0xa0, 0xd8, sizeof($value));
+        foreach ($value as $key => $val) {
+          $r.= $this->serialize($key).$this->serialize($val);
+        }
+        return $r;
       }
-      return $r;
     }
   }
 
@@ -125,6 +133,14 @@ class Serialization {
     } else if ("\xd4" === $marker) {
       $l= ord($value{$offset + 1});
       $offset+= 2;
+      return $this->lists($l, $value, $offset);
+    } else if ("\xd5" === $marker) {
+      $l= unpack('n', substr($value, $offset + 1, 2))[1];
+      $offset+= 3;
+      return $this->lists($l, $value, $offset);
+    } else if ("\xd6" === $marker) {
+      $l= unpack('N', substr($value, $offset + 1, 4))[1];
+      $offset+= 5;
       return $this->lists($l, $value, $offset);
     } else if ("\xd8" === $marker) {
       $l= unpack('C', $value{$offset + 1})[1];

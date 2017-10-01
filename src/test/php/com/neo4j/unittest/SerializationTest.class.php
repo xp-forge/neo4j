@@ -72,6 +72,30 @@ class SerializationTest extends \unittest\TestCase {
   }
 
   #[@test, @values([0, 1, 15])]
+  public function tiny_list($size) {
+    $value= array_fill(0, $size, '*');
+    $this->assertEquals($value, $this->fixture->unserialize($this->fixture->serialize($value)));
+  }
+
+  #[@test, @values([16, 255])]
+  public function list_8($size) {
+    $value= array_fill(0, $size, '*');
+    $this->assertEquals($value, $this->fixture->unserialize($this->fixture->serialize($value)));
+  }
+
+  #[@test, @values([256, 65535])]
+  public function list_16($size) {
+    $value= array_fill(0, $size, '*');
+    $this->assertEquals($value, $this->fixture->unserialize($this->fixture->serialize($value)));
+  }
+
+  #[@test, @values([65536, self::MAX_SIZE])]
+  public function list_32($size) {
+    $value= array_fill(0, $size, '*');
+    $this->assertEquals($value, $this->fixture->unserialize($this->fixture->serialize($value)));
+  }
+
+  #[@test, @values([0, 1, 15])]
   public function tiny_map($entries) {
     $value= [];
     for ($i= 0; $i < $entries; $i++) {
