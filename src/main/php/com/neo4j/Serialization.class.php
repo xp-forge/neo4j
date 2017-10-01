@@ -1,6 +1,7 @@
 <?php namespace com\neo4j;
 
 use lang\IllegalStateException;
+use io\ByteOrder;
 
 /**
  * Bolt protocol message serialization
@@ -8,6 +9,11 @@ use lang\IllegalStateException;
  * @see   https://boltprotocol.org/v1/#serialization
  */
 class Serialization {
+  private static $reverse;
+
+  static function __static() {
+    self::$reverse= ByteOrder::LITTLE_ENDIAN === ByteOrder::nativeOrder();
+  }
 
   /** Creates a marker */
   private function marker($base, $top, $length) {
@@ -41,7 +47,8 @@ class Serialization {
       } else if ($value > 32767 || $value < -32768) {
         return "\xca".pack('l', $value);
       } else if ($value > 127 || $value < -128) {
-        return "\xc9".strrev(pack('s', $value));
+        $packed= pack('s', $value);
+        return "\xc9".(self::$reverse ? strrev($packed) : $packed);
       } else {
         return "\xc8".pack('c', $value);
       }
@@ -62,7 +69,8 @@ class Serialization {
         return $r;
       }
     } else if (is_float($value)) {
-      return "\xc1".strrev(pack('d', $value));
+      $packed= pack('d', $value);
+      return "\xc1".(self::$reverse ? strrev($packed) : $packed);
     } else {
       throw new IllegalStateException('Cannot serialize '.typeof($value)->getName());
     }
@@ -103,7 +111,8 @@ class Serialization {
       return null;
     } else if ("\xc1" === $marker) {
       $offset+= 9;
-      return unpack('d', strrev(substr($value, $offset - 8, 8)))[1];
+      $bytes= substr($value, $offset - 8, 8);
+      return unpack('d', self::$reverse ? strrev($bytes) : $bytes)[1];
     } else if ("\xc2" === $marker) {
       $offset+= 1;
       return false;
@@ -115,7 +124,8 @@ class Serialization {
       return unpack('c', $value{$offset - 1})[1];
     } else if ("\xc9" === $marker) {
       $offset+= 3;
-      return unpack('s', strrev(substr($value, $offset - 2, 2)))[1];
+      $bytes= substr($value, $offset - 2, 2);
+      return unpack('s', self::$reverse ? strrev($bytes) : $bytes)[1];
     } else if ("\xca" === $marker) {
       $offset+= 5;
       return unpack('l', substr($value, $offset - 4, 4))[1];
