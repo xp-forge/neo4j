@@ -22,6 +22,11 @@ class SerializationTest extends \unittest\TestCase {
     $this->assertEquals($value, $this->fixture->unserialize($this->fixture->serialize($value)));
   }
 
+  #[@test, @values([0.1, 1.5, -6.1])]
+  public function floats($value) {
+    $this->assertEquals($value, $this->fixture->unserialize($this->fixture->serialize($value)));
+  }
+
   #[@test, @values([-16, -1, 0, 1, 127])]
   public function tiny_int($value) {
     $this->assertEquals($value, $this->fixture->unserialize($this->fixture->serialize($value)));

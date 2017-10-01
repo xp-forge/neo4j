@@ -9,6 +9,7 @@ use lang\IllegalStateException;
  */
 class Serialization {
 
+  /** Creates a marker */
   private function marker($base, $top, $length) {
     if ($length < 16) {
       return pack('C', $base + $length);
@@ -60,6 +61,10 @@ class Serialization {
         }
         return $r;
       }
+    } else if (is_float($value)) {
+      return "\xc1".strrev(pack('d', $value));
+    } else {
+      throw new IllegalStateException('Cannot serialize '.typeof($value)->getName());
     }
   }
 
