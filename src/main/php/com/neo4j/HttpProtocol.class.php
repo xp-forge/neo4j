@@ -28,6 +28,7 @@ class HttpProtocol extends Protocol {
    *
    * @param  [:var][] $payload
    * @return [:var] Results
+   * @throws com.neo4j.UnexpectedResponse
    */
   public function commit($payload) {
     $req= $this->conn->create(new HttpRequest());
@@ -48,7 +49,7 @@ class HttpProtocol extends Protocol {
     } else if (401 === $res->statusCode()) {
       throw new CannotAuthenticate([$res->readData()]);
     } else {
-      throw new QueryFailed(['Unexpected HTTP response status '.$res->statusCode(), $res->readData()]);
+      throw new UnexpectedResponse(['Unexpected HTTP response status '.$res->statusCode(), $res->readData()]);
     }
   }
 }

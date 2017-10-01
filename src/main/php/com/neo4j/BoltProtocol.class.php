@@ -171,28 +171,37 @@ class BoltProtocol extends Protocol {
   }
 
   /**
+   * Initialize communication
+   *
+   * @see    https://boltprotocol.org/v1/#handshake
+   * @return void
+   * @throws com.neo4j.UnexpectedResponse
+   */
+  private function init() {
+    $this->sock->write(self::PREAMBLE.pack('NNNN', 1, 0, 0, 0));
+    $protocol= unpack('N', $this->sock->readBinary(4));
+    if (0 === $protocol[1]) {
+      throw new UnexpectedResponse(['Protocol handshake failed, server does not support protocol version']);
+    }
+
+    $this->send(self::INIT, nameof($this), $this->init);
+    $res= $this->receive();
+    if (self::SUCCESS !== $res->signature) {
+      throw new CannotAuthenticate([$res->fields['metadata']]);
+    }
+  }
+
+  /**
    * Commits multiple statements using `transaction/commit` endpoint.
    *
    * @param  [:var][] $payload
    * @return [:var] Results
+   * @throws com.neo4j.UnexpectedResponse
    */
   public function commit($payload) {
     if (!$this->sock->isConnected()) {
       $this->sock->connect();
-
-      // Handshake
-      $this->sock->write(self::PREAMBLE.pack('NNNN', 1, 0, 0, 0));
-      $protocol= unpack('N', $this->sock->readBinary(4));
-      if (0 === $protocol[1]) {
-        throw new QueryFailed(['Protocol handshake failed, server does not support protocol version']);
-      }
-
-      // Init
-      $this->send(self::INIT, nameof($this), $this->init);
-      $res= $this->receive();
-      if (self::SUCCESS !== $res->signature) {
-        throw new CannotAuthenticate([$res->fields['metadata']]);
-      }
+      $this->init();
     }
 
     $r= ['results' => [], 'errors' => []];
