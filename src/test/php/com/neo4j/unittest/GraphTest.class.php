@@ -1,6 +1,8 @@
 <?php namespace com\neo4j\unittest;
 
 use com\neo4j\Graph;
+use com\neo4j\Protocol;
+use com\neo4j\HttpProtocol;
 use com\neo4j\QueryFailed;
 use lang\FormatException;
 use lang\IndexOutOfBoundsException;
@@ -25,15 +27,14 @@ class GraphTest extends \unittest\TestCase {
 
   /** Creates a fixture with a given function for producing results */
   private function newFixture($resultsFor= null) {
-    return newinstance(Graph::class, [$resultsFor ?: function($payload) { return null; }], [
+    return new Graph(newinstance(Protocol::class, [$resultsFor ?: function($payload) { return null; }], [
       '__construct' => function($resultsFor) {
-        parent::__construct('http://localhost:7474/db/data');
         $this->resultsFor= $resultsFor;
       },
       'commit' => function($payload) {
         return $this->resultsFor->__invoke($payload);
       }
-    ]);
+    ]));
   }
 
   #[@test]

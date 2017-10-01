@@ -5,6 +5,12 @@ use peer\URL;
 
 abstract class Protocol {
 
+  /**
+   * Factory method
+   *
+   * @param  peer.URL|string $endpoint
+   * @return self
+   */
   public static function for($endpoint) {
     $url= $endpoint instanceof URL ? $endpoint : new URL($endpoint);
     switch ($url->getScheme()) {
@@ -14,5 +20,6 @@ abstract class Protocol {
     }
   }
 
+  /** Commits a payload and returns records */
   public abstract function commit($payload);
 }
