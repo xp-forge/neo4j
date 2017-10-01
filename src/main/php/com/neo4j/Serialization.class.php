@@ -168,7 +168,7 @@ class Serialization {
     } else if ($marker >= "\x80" && $marker <= "\x8f") {
       $l= ord($marker) - 0x80;
       $offset+= $l + 1;
-      return substr($value, $offset - $l, $l);
+      return 0 === $l ? '' : substr($value, $offset - $l, $l);
     } else if ($marker >= "\x90" && $marker <= "\x9f") {
       $l= ord($marker) - 0x90;
       $offset++;
