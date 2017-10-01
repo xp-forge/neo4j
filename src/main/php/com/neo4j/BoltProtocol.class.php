@@ -2,7 +2,6 @@
 
 use peer\Socket;
 use peer\URL;
-use util\Bytes;
 
 class BoltProtocol extends Protocol {
   private $sock, $init;
@@ -31,15 +30,6 @@ class BoltProtocol extends Protocol {
     } else {
       $this->init= ['scheme' => 'none'];
     }
-  }
-
-  private static function dump($prefix, $data) {
-    echo $prefix, "\n";
-    for ($i= 0, $l= strlen($data); $i < strlen($data); $i++) {
-      if (0 === $i % 16) echo "\n"; else if (0 === $i % 4) echo " ";
-      printf("%02X ", ord($data{$i}));
-    }
-    echo "\n";
   }
 
   private function marker($base, $top, $length) {
