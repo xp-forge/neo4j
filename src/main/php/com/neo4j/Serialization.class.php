@@ -41,7 +41,7 @@ class Serialization {
       } else if ($value > 32767 || $value < -32768) {
         return "\xca".pack('l', $value);
       } else if ($value > 127 || $value < -128) {
-        return "\xc9".pack('s', $value);
+        return "\xc9".strrev(pack('s', $value));
       } else {
         return "\xc8".pack('c', $value);
       }
@@ -115,7 +115,7 @@ class Serialization {
       return unpack('c', $value{$offset - 1})[1];
     } else if ("\xc9" === $marker) {
       $offset+= 3;
-      return unpack('s', substr($value, $offset - 2, 2))[1];
+      return unpack('s', strrev(substr($value, $offset - 2, 2)))[1];
     } else if ("\xca" === $marker) {
       $offset+= 5;
       return unpack('l', substr($value, $offset - 4, 4))[1];
