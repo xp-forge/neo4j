@@ -5,7 +5,6 @@ use com\neo4j\QueryFailed;
 use lang\FormatException;
 use lang\IndexOutOfBoundsException;
 use peer\URL;
-use peer\http\HttpConnection;
 
 class GraphTest extends \unittest\TestCase {
   public static $ROW = ['columns' => ['id(n)'], 'data' => [['row' => [6], 'meta' => [null]]]];
@@ -48,8 +47,8 @@ class GraphTest extends \unittest\TestCase {
   }
 
   #[@test]
-  public function can_create_with_http_connection() {
-    new Graph(new HttpConnection('http://localhost:7474/db/data'));
+  public function can_create_with_protocol() {
+    new Graph(new HttpProtocol(new URL('http://localhost:7474/db/data')));
   }
 
   #[@test]

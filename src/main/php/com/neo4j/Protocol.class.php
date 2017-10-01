@@ -6,7 +6,7 @@ use peer\URL;
 abstract class Protocol {
 
   public static function for($endpoint) {
-    $url= $endpoint instanceof URL ? $url : new URL($endpoint);
+    $url= $endpoint instanceof URL ? $endpoint : new URL($endpoint);
     switch ($url->getScheme()) {
       case 'http': case 'https': return new HttpProtocol($url);
       case 'bolt': return new BoltProtocol($url);
