@@ -6,6 +6,7 @@ class Struct implements \lang\Value {
   private static $FIELDS= [
     BoltProtocol::NODE                => ['Node', 'identity', 'labels', 'properties'],
     BoltProtocol::PATH                => ['Path', 'nodes', 'relationships', 'sequence'],
+    BoltProtocol::RELATIONSHIP        => ['Relationship', 'relIdentity', 'startNodeIdentity', 'endNodeIdentity', 'type', 'properties'],
     BoltProtocol::UNBOUNDRELATIONSHIP => ['UnboundRelationship', 'relIdentity', 'type', 'properties'],
     BoltProtocol::SUCCESS             => ['Success', 'metadata'],
     BoltProtocol::RECORD              => ['Record', 'fields'],

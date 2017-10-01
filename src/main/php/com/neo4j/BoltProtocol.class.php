@@ -14,6 +14,7 @@ class BoltProtocol extends Protocol {
   const PULL_ALL            = 0x3f;
   const NODE                = 0x4e;
   const PATH                = 0x50;
+  const RELATIONSHIP        = 0x52;
   const SUCCESS             = 0x70;
   const RECORD              = 0x71;
   const UNBOUNDRELATIONSHIP = 0x72;
