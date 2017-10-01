@@ -1,5 +1,7 @@
 <?php namespace com\neo4j;
 
+use lang\IllegalStateException;
+
 /**
  * Bolt protocol message serialization
  *
@@ -34,7 +36,7 @@ class Serialization {
       return "\xc2";
     } else if (is_int($value)) {
       if ($value < -2147483648) {
-        return "\xcb".pack('q', $value);
+        return "\xcb".pack('NN', ($value & 0xffffffff00000000) >> 32, $value & 0x00000000ffffffff);
       } else if ($value < -32768) {
         return "\xca".pack('l', $value);
       } else if ($value < -128) {
@@ -48,7 +50,7 @@ class Serialization {
       } else if ($value < 2147483648) {
         return "\xca".pack('l', $value);
       } else {
-        return "\xcb".pack('q', $value);
+        return "\xcb".pack('NN', ($value & 0xffffffff00000000) >> 32, $value & 0x00000000ffffffff);
       }
     } else if (is_string($value)) {
       return $this->marker(0x80, 0xd0, strlen($value)).$value;
@@ -114,7 +116,8 @@ class Serialization {
       return unpack('l', substr($value, $offset - 4, 4))[1];
     } else if ("\xcb" === $marker) {
       $offset+= 9;
-      return unpack('q', substr($value, $offset - 8, 8))[1];
+      $l= unpack('N2', substr($value, $offset - 8, 8));
+      return ($l[1] << 32) + $l[2];
     } else if ("\xd0" === $marker) {
       $l= unpack('C', $value{$offset + 1})[1];
       $offset+= $l + 2;
@@ -166,7 +169,7 @@ class Serialization {
       $offset++;
       return $this->structs($l, $value, $offset);
     } else {
-      return sprintf("MARKER:0x%02x", ord($marker));
+      throw new IllegalStateException(sprintf('Unknown marker 0x%02x', ord($marker)));
     }
   }
 }
