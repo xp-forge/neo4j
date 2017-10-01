@@ -35,22 +35,14 @@ class Serialization {
     } else if (false === $value) {
       return "\xc2";
     } else if (is_int($value)) {
-      if ($value < -2147483648) {
+      if ($value > 2147483647 || $value < -2147483648) {
         return "\xcb".pack('NN', ($value & 0xffffffff00000000) >> 32, $value & 0x00000000ffffffff);
-      } else if ($value < -32768) {
+      } else if ($value > 32767 || $value < -32768) {
         return "\xca".pack('l', $value);
-      } else if ($value < -128) {
+      } else if ($value > 127 || $value < -128) {
         return "\xc9".pack('s', $value);
-      } else if ($value < -16) {
-        return "\xc8".pack('c', $value);
-      } else if ($value < 128) {
-        return pack('c', $value);
-      } else if ($value < 32768) {
-        return "\xc9".pack('s', $value);
-      } else if ($value < 2147483648) {
-        return "\xca".pack('l', $value);
       } else {
-        return "\xcb".pack('NN', ($value & 0xffffffff00000000) >> 32, $value & 0x00000000ffffffff);
+        return "\xc8".pack('c', $value);
       }
     } else if (is_string($value)) {
       return $this->marker(0x80, 0xd0, strlen($value)).$value;
