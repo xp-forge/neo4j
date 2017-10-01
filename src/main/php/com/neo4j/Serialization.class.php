@@ -104,14 +104,20 @@ class Serialization {
     return $r;
   }
 
-  public function unserialize($value, &$offset= 0) {
-    $marker= $value{$offset};
+  /**
+   * Unserialize a given input string
+   *
+   * @param  string $input
+   * @return var
+   */
+  public function unserialize($input, &$offset= 0) {
+    $marker= $input{$offset};
     if ("\xc0" === $marker) {
       $offset+= 1;
       return null;
     } else if ("\xc1" === $marker) {
       $offset+= 9;
-      $bytes= substr($value, $offset - 8, 8);
+      $bytes= substr($input, $offset - 8, 8);
       return unpack('d', self::$reverse ? strrev($bytes) : $bytes)[1];
     } else if ("\xc2" === $marker) {
       $offset+= 1;
@@ -121,54 +127,54 @@ class Serialization {
       return true;
     } else if ("\xc8" === $marker) {
       $offset+= 2;
-      return unpack('c', $value{$offset - 1})[1];
+      return unpack('c', $input{$offset - 1})[1];
     } else if ("\xc9" === $marker) {
       $offset+= 3;
-      $bytes= substr($value, $offset - 2, 2);
+      $bytes= substr($input, $offset - 2, 2);
       return unpack('s', self::$reverse ? strrev($bytes) : $bytes)[1];
     } else if ("\xca" === $marker) {
       $offset+= 5;
-      return unpack('l', substr($value, $offset - 4, 4))[1];
+      return unpack('l', substr($input, $offset - 4, 4))[1];
     } else if ("\xcb" === $marker) {
       $offset+= 9;
-      $l= unpack('N2', substr($value, $offset - 8, 8));
+      $l= unpack('N2', substr($input, $offset - 8, 8));
       return ($l[1] << 32) + $l[2];
     } else if ("\xd0" === $marker) {
-      $l= unpack('C', $value{$offset + 1})[1];
+      $l= unpack('C', $input{$offset + 1})[1];
       $offset+= $l + 2;
-      return substr($value, $offset - $l, $l);
+      return substr($input, $offset - $l, $l);
     } else if ("\xd1" === $marker) {
-      $l= unpack('n', substr($value, $offset + 1, 2))[1];
+      $l= unpack('n', substr($input, $offset + 1, 2))[1];
       $offset+= $l + 3;
-      return substr($value, $offset - $l, $l);
+      return substr($input, $offset - $l, $l);
     } else if ("\xd2" === $marker) {
-      $l= unpack('N', substr($value, $offset + 1, 4))[1];
+      $l= unpack('N', substr($input, $offset + 1, 4))[1];
       $offset+= $l + 5;
-      return substr($value, $offset - $l, $l);
+      return substr($input, $offset - $l, $l);
     } else if ("\xd4" === $marker) {
-      $l= ord($value{$offset + 1});
+      $l= ord($input{$offset + 1});
       $offset+= 2;
-      return $this->lists($l, $value, $offset);
+      return $this->lists($l, $input, $offset);
     } else if ("\xd5" === $marker) {
-      $l= unpack('n', substr($value, $offset + 1, 2))[1];
+      $l= unpack('n', substr($input, $offset + 1, 2))[1];
       $offset+= 3;
-      return $this->lists($l, $value, $offset);
+      return $this->lists($l, $input, $offset);
     } else if ("\xd6" === $marker) {
-      $l= unpack('N', substr($value, $offset + 1, 4))[1];
+      $l= unpack('N', substr($input, $offset + 1, 4))[1];
       $offset+= 5;
-      return $this->lists($l, $value, $offset);
+      return $this->lists($l, $input, $offset);
     } else if ("\xd8" === $marker) {
-      $l= unpack('C', $value{$offset + 1})[1];
+      $l= unpack('C', $input{$offset + 1})[1];
       $offset+= 2;
-      return $this->maps($l, $value, $offset);
+      return $this->maps($l, $input, $offset);
     } else if ("\xd9" === $marker) {
-      $l= unpack('n', substr($value, $offset + 1, 2))[1];
+      $l= unpack('n', substr($input, $offset + 1, 2))[1];
       $offset+= 3;
-      return $this->maps($l, $value, $offset);
+      return $this->maps($l, $input, $offset);
     } else if ("\xda" === $marker) {
-      $l= unpack('N', substr($value, $offset + 1, 4))[1];
+      $l= unpack('N', substr($input, $offset + 1, 4))[1];
       $offset+= 5;
-      return $this->maps($l, $value, $offset);
+      return $this->maps($l, $input, $offset);
     } else if ($marker >= "\x00" && $marker <= "\x7f") {
       $offset+= 1;
       return ord($marker);
@@ -178,19 +184,19 @@ class Serialization {
     } else if ($marker >= "\x80" && $marker <= "\x8f") {
       $l= ord($marker) - 0x80;
       $offset+= $l + 1;
-      return 0 === $l ? '' : substr($value, $offset - $l, $l);
+      return 0 === $l ? '' : substr($input, $offset - $l, $l);
     } else if ($marker >= "\x90" && $marker <= "\x9f") {
       $l= ord($marker) - 0x90;
       $offset++;
-      return $this->lists($l, $value, $offset);
+      return $this->lists($l, $input, $offset);
     } else if ($marker >= "\xa0" && $marker <= "\xaf") {
       $l= ord($marker) - 0xa0;
       $offset++;
-      return $this->maps($l, $value, $offset);
+      return $this->maps($l, $input, $offset);
     } else if ($marker >= "\xb0" && $marker <= "\xbf") {
       $l= ord($marker) - 0xb0;
       $offset++;
-      return $this->structs($l, $value, $offset);
+      return $this->structs($l, $input, $offset);
     } else {
       throw new IllegalStateException(sprintf('Unknown marker 0x%02x', ord($marker)));
     }
