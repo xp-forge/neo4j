@@ -16,7 +16,7 @@ class Graph implements \lang\Value {
    * @param  string|peer.URL|com.neo4j.Protocol $endpoint
    */
   public function __construct($endpoint) {
-    $this->protocol= $endpoint instanceof Protocol ? $endpoint : Protocol::for($endpoint);
+    $this->protocol= $endpoint instanceof Protocol ? $endpoint : Protocol::forEndpoint($endpoint);
     $this->cypher= new Cypher();
   }
 

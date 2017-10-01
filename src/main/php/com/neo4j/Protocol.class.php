@@ -11,7 +11,7 @@ abstract class Protocol {
    * @param  peer.URL|string $endpoint
    * @return self
    */
-  public static function for($endpoint) {
+  public static function forEndpoint($endpoint) {
     $url= $endpoint instanceof URL ? $endpoint : new URL($endpoint);
     switch ($url->getScheme()) {
       case 'http': case 'https': return new HttpProtocol($url);
