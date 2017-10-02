@@ -85,6 +85,7 @@ class BoltProtocol extends Protocol {
 
   /** @return [:var][] */
   private function records() {
+    $records= [];
     do {
       $res= $this->receive();
       if (self::RECORD === $res->signature) {
