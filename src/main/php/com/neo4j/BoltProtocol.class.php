@@ -6,7 +6,9 @@ use peer\URL;
 class BoltProtocol extends Protocol {
   private $sock, $init, $serialization;
 
+  const EOR                 = "\x00\x00";
   const PREAMBLE            = "\x60\x60\xb0\x17";
+
   const INIT                = 0x01;
   const ACK_FAILURE         = 0x0e;
   const RESET               = 0x0f;
@@ -38,23 +40,26 @@ class BoltProtocol extends Protocol {
 
   /** Sends a message */
   private function send($signature, ... $args) {
-    $chunk= pack('cc', 0xb0 + sizeof($args), $signature);
+    $s= pack('cc', 0xb0 + sizeof($args), $signature);
     foreach ($args as $arg) {
-      $chunk.= $this->serialization->serialize($arg);
+      $s.= $this->serialization->serialize($arg);
     }
 
-    $send= pack('n', strlen($chunk)).$chunk."\x00\x00";
-    $this->sock->write($send);
+    for ($l= strlen($s), $o= 0; $o < $l; $o+= 65536) {
+      $p= min($l - $o, 65535);
+      $this->sock->write(pack('n', $p).substr($s, $o, $p));
+    }
+    $this->sock->write(self::EOR);
   }
 
   /** Receives one answer at a time */
   private function receive() {
-    $chunk= '';
-    while ("\x00\x00" !== ($length= $this->sock->readBinary(2))) {
-      $chunk.= $this->sock->readBinary(unpack('n', $length)[1]);
+    $r= '';
+    while (self::EOR !== ($length= $this->sock->readBinary(2))) {
+      $r.= $this->sock->readBinary(unpack('n', $length)[1]);
     }
 
-    return $this->serialization->unserialize($chunk);
+    return $this->serialization->unserialize($r);
   }
 
   /**
