@@ -95,7 +95,7 @@ class BoltProtocol extends Protocol {
   }
 
   /**
-   * Commits multiple statements using `transaction/commit` endpoint.
+   * Commits multiple statements
    *
    * @param  [:var][] $payload
    * @return [:var] Results

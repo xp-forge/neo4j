@@ -18,7 +18,10 @@ class HttpProtocol extends Protocol {
    * @param  peer.URL $endpoint
    */
   public function __construct(URL $endpoint) {
-    $this->conn= new HttpConnection($endpoint);
+    $this->conn= new HttpConnection($endpoint
+      ->setPort($endpoint->getPort(7474))
+      ->setPath($endpoint->getPath('/db/data'))
+    );
     $this->json= Format::dense();
     $this->base= rtrim($this->conn->getURL()->getPath(), '/');
   }
@@ -47,9 +50,9 @@ class HttpProtocol extends Protocol {
     if (200 === $res->statusCode()) {
       return Json::read(new StreamInput($res->in()));
     } else if (401 === $res->statusCode()) {
-      throw new CannotAuthenticate([$res->readData()]);
+      throw new CannotAuthenticate([Json::read(new StreamInput($res->in()))]);
     } else {
-      throw new UnexpectedResponse(['Unexpected HTTP response status '.$res->statusCode(), $res->readData()]);
+      throw new UnexpectedResponse(['Unexpected HTTP response status '.$res->statusCode(), $res->readData().'...']);
     }
   }
 }
