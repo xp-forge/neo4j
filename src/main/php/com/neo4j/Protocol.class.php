@@ -3,6 +3,11 @@
 use lang\IllegalArgumentException;
 use peer\URL;
 
+/**
+ * Protocol base class
+ *
+ * @test  xp://com.neo4j.unittest.ProtocolTest
+ */
 abstract class Protocol {
 
   /**
