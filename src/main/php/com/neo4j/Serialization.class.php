@@ -43,7 +43,8 @@ class Serialization {
       return "\xc2";
     } else if (is_int($value)) {
       if ($value > 2147483647 || $value < -2147483648) {
-        return "\xcb".pack('NN', ($value & 0xffffffff00000000) >> 32, $value & 0x00000000ffffffff);
+        $packed= pack('q', $value);
+        return "\xcb".(self::$reverse ? strrev($packed) : $packed);
       } else if ($value > 32767 || $value < -32768) {
         return "\xca".pack('l', $value);
       } else if ($value > 127 || $value < -128) {
@@ -137,8 +138,8 @@ class Serialization {
       return unpack('l', substr($input, $offset - 4, 4))[1];
     } else if ("\xcb" === $marker) {
       $offset+= 9;
-      $l= unpack('N2', substr($input, $offset - 8, 8));
-      return ($l[1] << 32) + $l[2];
+      $bytes= substr($input, $offset - 8, 8);
+      return unpack('q', self::$reverse ? strrev($bytes) : $bytes)[1];
     } else if ("\xd0" === $marker) {
       $l= unpack('C', $input{$offset + 1})[1];
       $offset+= $l + 2;
