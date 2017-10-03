@@ -38,6 +38,15 @@ class BoltProtocol extends Protocol {
     $this->serialization= new Serialization();
   }
 
+  /** Reads a number of specified bytes */
+  private function readBytes($n) {
+    $bytes= '';
+    do {
+      $bytes.= $this->sock->readBinary($n);
+    } while (strlen($bytes) < $n && !$this->sock->eof());
+    return $bytes;
+  }
+
   /** Sends a message */
   private function send($signature, ... $args) {
     $s= pack('ca', 0xb0 + sizeof($args), $signature);
@@ -55,8 +64,8 @@ class BoltProtocol extends Protocol {
   /** Receives one receive at a time */
   private function receive() {
     $r= '';
-    while (self::EOR !== ($length= $this->sock->readBinary(2))) {
-      $r.= $this->sock->readBinary(unpack('n', $length)[1]);
+    while (self::EOR !== ($length= $this->readBytes(2))) {
+      $r.= $this->readBytes(unpack('n', $length)[1]);
     }
 
     return $r;
@@ -71,7 +80,7 @@ class BoltProtocol extends Protocol {
    */
   private function init() {
     $this->sock->write(self::PREAMBLE.pack('NNNN', 1, 0, 0, 0));
-    $protocol= unpack('N', $this->sock->readBinary(4));
+    $protocol= unpack('N', $this->readBytes(4));
     if (0 === $protocol[1]) {
       throw new UnexpectedResponse(['Protocol handshake failed, server does not support protocol version']);
     }
@@ -133,6 +142,6 @@ class BoltProtocol extends Protocol {
 
   /** @return void */
   public function close() {
-    $this->sock->isConnected() && $this->socket->close();
+    $this->sock->isConnected() && $this->sock->close();
   }
 }
