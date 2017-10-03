@@ -19,7 +19,7 @@ Running a query can be done via `open()` (which yields one record at a time) or 
 use com\neo4j\Graph;
 use util\cmd\Console;
 
-$g= new Graph('http://user:pass@neo4j-db.example.com:7474/db/data');
+$g= new Graph('http://user:pass@neo4j-db.example.com');
 $q= $g->open('MATCH (t:Topic) RETURN t.name, t.canonical');
 foreach ($q as $record) {
   Console::writeLine('#', $record['t.canonical'], ': ', $record['t.name']);
@@ -32,8 +32,8 @@ Formatting parameters uses *printf*-like format tokens. These will take care of 
 use com\neo4j\Graph;
 use util\cmd\Console;
 
-$g= new Graph('http://user:pass@neo4j-db.example.com:7474/db/data');
-$g->query('CREATE (p:Person) SET t.name = %s, t.id = %d', $name, $id);
+$g= new Graph('http://user:pass@neo4j-db.example.com');
+$g->query('CREATE (p:Person) SET p.name = %s, p.id = %d', $name, $id);
 ```
 
 Batch statements can be executed via the `execute()` method.

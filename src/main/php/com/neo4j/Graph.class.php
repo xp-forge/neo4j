@@ -1,12 +1,5 @@
 <?php namespace com\neo4j;
 
-use peer\http\HttpConnection;
-use peer\http\HttpRequest;
-use peer\http\RequestData;
-use text\json\Json;
-use text\json\Format;
-use text\json\StreamInput;
-
 /**
  * Neo4J interface using its HTTP API
  * 
@@ -15,40 +8,16 @@ use text\json\StreamInput;
  * @test  xp://com.neo4j.unittest.GraphTest
  */
 class Graph implements \lang\Value {
-  private $conn, $cypher, $json, $base;
+  private $protocol, $cypher;
 
   /**
    * Creates a new Neo4J graph connection
    *
-   * @param  string|peer.URL|peer.http.HttpConnection $endpoint
+   * @param  string|peer.URL|com.neo4j.Protocol $endpoint
    */
   public function __construct($endpoint) {
-    $this->conn= $endpoint instanceof HttpConnection ? $endpoint : new HttpConnection($endpoint);
+    $this->protocol= $endpoint instanceof Protocol ? $endpoint : Protocol::forEndpoint($endpoint);
     $this->cypher= new Cypher();
-    $this->json= Format::dense();
-    $this->base= rtrim($this->conn->getURL()->getPath(), '/');
-  }
-
-  /**
-   * Commits multiple statements using `transaction/commit` endpoint.
-   *
-   * @param  [:var][] $payload
-   * @return [:var] Results
-   */
-  protected function commit($payload) {
-    $req= $this->conn->create(new HttpRequest());
-    $req->setMethod('POST');
-    $req->setTarget($this->base.'/transaction/commit');
-    $req->setHeader('X-Stream', 'true');
-    $req->setHeader('Content-Type', 'application/json');
-    $req->setParameters(new RequestData(Json::of($payload, $this->json)));
-
-    $res= $this->conn->send($req);
-    if (200 !== $res->statusCode()) {
-      throw new QueryFailed(['Unexpected HTTP response status '.$res->statusCode()]);
-    }
-
-    return Json::read(new StreamInput($res->in()));
   }
 
   /**
@@ -103,7 +72,7 @@ class Graph implements \lang\Value {
       $list[]= is_array($statement) ? $statement : ['statement' => $statement];
     }
 
-    $response= $this->commit(['statements' => $list]);
+    $response= $this->protocol->commit(['statements' => $list]);
     if (empty($response['errors'])) {
       return $response['results'];
     } else {

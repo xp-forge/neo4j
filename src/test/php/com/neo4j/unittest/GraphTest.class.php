@@ -1,11 +1,12 @@
 <?php namespace com\neo4j\unittest;
 
 use com\neo4j\Graph;
+use com\neo4j\Protocol;
+use com\neo4j\HttpProtocol;
 use com\neo4j\QueryFailed;
 use lang\FormatException;
 use lang\IndexOutOfBoundsException;
 use peer\URL;
-use peer\http\HttpConnection;
 
 class GraphTest extends \unittest\TestCase {
   public static $ROW = ['columns' => ['id(n)'], 'data' => [['row' => [6], 'meta' => [null]]]];
@@ -26,15 +27,11 @@ class GraphTest extends \unittest\TestCase {
 
   /** Creates a fixture with a given function for producing results */
   private function newFixture($resultsFor= null) {
-    return newinstance(Graph::class, [$resultsFor ?: function($payload) { return null; }], [
-      '__construct' => function($resultsFor) {
-        parent::__construct('http://localhost:7474/db/data');
-        $this->resultsFor= $resultsFor;
-      },
-      'commit' => function($payload) {
-        return $this->resultsFor->__invoke($payload);
-      }
-    ]);
+    return new Graph(newinstance(Protocol::class, [$resultsFor ?: function($payload) { return null; }], [
+      '__construct' => function($resultsFor) { $this->resultsFor= $resultsFor; },
+      'commit'      => function($payload) { return $this->resultsFor->__invoke($payload); },
+      'close'       => function() { /* NOOP */ }
+    ]));
   }
 
   #[@test]
@@ -48,8 +45,8 @@ class GraphTest extends \unittest\TestCase {
   }
 
   #[@test]
-  public function can_create_with_http_connection() {
-    new Graph(new HttpConnection('http://localhost:7474/db/data'));
+  public function can_create_with_protocol() {
+    new Graph(new HttpProtocol(new URL('http://localhost:7474/db/data')));
   }
 
   #[@test]
