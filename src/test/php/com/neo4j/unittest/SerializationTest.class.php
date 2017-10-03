@@ -104,7 +104,7 @@ class SerializationTest extends \unittest\TestCase {
   public function tiny_map($entries) {
     $value= [];
     for ($i= 0; $i < $entries; $i++) {
-      $value[(string)$i]= $i;
+      $value['_'.$i]= $i;
     }
     $this->assertEquals($value, $this->fixture->unserialize($this->fixture->serialize($value)));
   }
@@ -113,7 +113,7 @@ class SerializationTest extends \unittest\TestCase {
   public function map_8($entries) {
     $value= [];
     for ($i= 0; $i < $entries; $i++) {
-      $value[(string)$i]= $i;
+      $value['_'.$i]= $i;
     }
     $this->assertEquals($value, $this->fixture->unserialize($this->fixture->serialize($value)));
   }
@@ -122,7 +122,7 @@ class SerializationTest extends \unittest\TestCase {
   public function map_16($entries) {
     $value= [];
     for ($i= 0; $i < $entries; $i++) {
-      $value[(string)$i]= $i;
+      $value['_'.$i]= $i;
     }
     $this->assertEquals($value, $this->fixture->unserialize($this->fixture->serialize($value)));
   }
@@ -131,7 +131,7 @@ class SerializationTest extends \unittest\TestCase {
   public function map_32($entries) {
     $value= [];
     for ($i= 0; $i < $entries; $i++) {
-      $value[(string)$i]= $i;
+      $value['_'.$i]= $i;
     }
     $this->assertEquals($value, $this->fixture->unserialize($this->fixture->serialize($value)));
   }
