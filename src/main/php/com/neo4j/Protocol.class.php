@@ -27,4 +27,9 @@ abstract class Protocol implements \lang\Closeable {
 
   /** Commits a payload and returns records */
   public abstract function commit($payload);
+
+  /** Call close() */
+  public function __destruct() {
+    $this->close();
+  }
 }
