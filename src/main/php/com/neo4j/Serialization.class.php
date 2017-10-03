@@ -97,12 +97,35 @@ class Serialization {
 
   /** Unserializes structs */
   private function structs($l, $value, &$offset= 0) {
-    $r= new Struct($this->unserialize($value, $offset));
-    for ($i= 1; $i <= $l; $i++) {
-      $val= $this->unserialize($value, $offset);
-      $r->put($i, $val);
+    $signature= $value{$offset++};
+    $args= [];
+    for ($i= 0; $i < $l; $i++) {
+      $args[]= $this->unserialize($value, $offset);
     }
-    return $r;
+
+    if ("\x71" === $signature) {          // Record
+      return ['row' => $args[0], 'meta' => null];
+    } else if ("\x4e" === $signature) {   // Node, return properties
+      return $args[2];
+    } else if ("\x50" === $signature) {   // Path, return (a.properties)-[r.properties]->(b.properties)<...>
+      $p= [$args[0][0]];
+      for ($i= 0, $s= sizeof($args[2]); $i < $s; ) {
+        $r= $args[2][$i++];
+        if ($r < 0) {
+          $p[]= $args[1][-$r - 1];
+        } else {
+          $p[]= $args[1][$r - 1];
+        }
+        $p[]= $args[0][$args[2][$i++]];
+      }
+      return $p;
+    } else if ("\x52" === $signature) {   // Relationship, return properties
+      return $args[4];
+    } else if ("\x72" === $signature) {   // UnboundRelationship, return properties
+      return $args[2];
+    } else {
+      throw new IllegalStateException(sprintf('Unknown value struct with signature 0x%02x', ord($signature)));
+    }
   }
 
   /**

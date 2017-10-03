@@ -9,19 +9,19 @@ class BoltProtocol extends Protocol {
   const EOR                 = "\x00\x00";
   const PREAMBLE            = "\x60\x60\xb0\x17";
 
-  const INIT                = 0x01;
-  const ACK_FAILURE         = 0x0e;
-  const RESET               = 0x0f;
-  const RUN                 = 0x10;
-  const PULL_ALL            = 0x3f;
-  const NODE                = 0x4e;
-  const PATH                = 0x50;
-  const RELATIONSHIP        = 0x52;
-  const SUCCESS             = 0x70;
-  const RECORD              = 0x71;
-  const UNBOUNDRELATIONSHIP = 0x72;
-  const FAILURE             = 0x7f;
-  const IGNORE              = 0x7e;
+  const INIT                = "\x01";
+  const ACK_FAILURE         = "\x0e";
+  const RESET               = "\x0f";
+  const RUN                 = "\x10";
+  const PULL_ALL            = "\x3f";
+  const NODE                = "\x4e";
+  const PATH                = "\x50";
+  const RELATIONSHIP        = "\x52";
+  const SUCCESS             = "\x70";
+  const RECORD              = "\x71";
+  const UNBOUNDRELATIONSHIP = "\x72";
+  const FAILURE             = "\x7f";
+  const IGNORE              = "\x7e";
 
   /**
    * Creates a new Neo4J graph connection
@@ -40,7 +40,7 @@ class BoltProtocol extends Protocol {
 
   /** Sends a message */
   private function send($signature, ... $args) {
-    $s= pack('cc', 0xb0 + sizeof($args), $signature);
+    $s= pack('ca', 0xb0 + sizeof($args), $signature);
     foreach ($args as $arg) {
       $s.= $this->serialization->serialize($arg);
     }
@@ -52,14 +52,14 @@ class BoltProtocol extends Protocol {
     $this->sock->write(self::EOR);
   }
 
-  /** Receives one answer at a time */
+  /** Receives one receive at a time */
   private function receive() {
     $r= '';
     while (self::EOR !== ($length= $this->sock->readBinary(2))) {
       $r.= $this->sock->readBinary(unpack('n', $length)[1]);
     }
 
-    return $this->serialization->unserialize($r);
+    return $r;
   }
 
   /**
@@ -77,9 +77,9 @@ class BoltProtocol extends Protocol {
     }
 
     $this->send(self::INIT, nameof($this), $this->init);
-    $res= $this->receive();
-    if (self::SUCCESS !== $res->signature) {
-      throw new CannotAuthenticate([$res->members['metadata']]);
+    $answer= $this->receive();
+    if (self::SUCCESS !== $answer{1}) {
+      throw new CannotAuthenticate([$this->serialization->unserialize($answer)]);
     }
   }
 
@@ -87,11 +87,11 @@ class BoltProtocol extends Protocol {
   private function records() {
     $records= [];
     do {
-      $res= $this->receive();
-      if (self::RECORD === $res->signature) {
-        $records[]= ['row' => $res->members['fields'], 'meta' => null];  // FIXME: Fill meta
-      }
-    } while (self::RECORD === $res->signature);
+      $answer= $this->receive();
+      if (self::RECORD !== $answer{1}) break;
+      $records[]= $this->serialization->unserialize($answer);
+    } while (true);
+
     return $records;
   }
 
@@ -112,18 +112,19 @@ class BoltProtocol extends Protocol {
     foreach ($payload['statements'] as $s) {
       $this->send(self::RUN, $s['statement'], isset($s['parameters']) ? $s['parameters'] : []);
 
-      $res= $this->receive();
-      if (self::FAILURE === $res->signature) {
-        $r['errors'][]= $res->members['metadata'];
+      $answer= $this->receive();
+      $offset= 2;
+      if (self::SUCCESS === $answer{1}) {
+        $this->send(self::PULL_ALL);
+        $r['results'][]= ['columns' => $this->serialization->unserialize($answer, $offset)['fields'], 'data' => $this->records()];        
+      } else if (self::FAILURE === $answer{1}) {
         $this->send(self::ACK_FAILURE);
         $this->receive();
-      } else if (self::IGNORE === $res->signature) {
-        $r['errors'][]= ['Ignored'];
+        $r['errors'][]= $this->serialization->unserialize($answer, $offset);        
+      } else {
         $this->send(self::RESET);
         $this->receive();
-      } else {
-        $this->send(self::PULL_ALL);
-        $r['results'][]= ['columns' => $res->members['metadata']['fields'], 'data' => $this->records()];
+        $r['errors'][]= ['Ignored'];
       }
     }
     return $r;
