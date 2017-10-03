@@ -46,7 +46,8 @@ class Serialization {
         $packed= pack('q', $value);
         return "\xcb".(self::$reverse ? strrev($packed) : $packed);
       } else if ($value > 32767 || $value < -32768) {
-        return "\xca".pack('l', $value);
+        $packed= pack('l', $value);
+        return "\xca".(self::$reverse ? strrev($packed) : $packed);
       } else if ($value > 127 || $value < -128) {
         $packed= pack('s', $value);
         return "\xc9".(self::$reverse ? strrev($packed) : $packed);
@@ -158,7 +159,8 @@ class Serialization {
       return unpack('s', self::$reverse ? strrev($bytes) : $bytes)[1];
     } else if ("\xca" === $marker) {
       $offset+= 5;
-      return unpack('l', substr($input, $offset - 4, 4))[1];
+      $bytes= substr($input, $offset - 4, 4);
+      return unpack('l', self::$reverse ? strrev($bytes) : $bytes)[1];
     } else if ("\xcb" === $marker) {
       $offset+= 9;
       $bytes= substr($input, $offset - 8, 8);
