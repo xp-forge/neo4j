@@ -28,12 +28,9 @@ class GraphTest extends \unittest\TestCase {
   /** Creates a fixture with a given function for producing results */
   private function newFixture($resultsFor= null) {
     return new Graph(newinstance(Protocol::class, [$resultsFor ?: function($payload) { return null; }], [
-      '__construct' => function($resultsFor) {
-        $this->resultsFor= $resultsFor;
-      },
-      'commit' => function($payload) {
-        return $this->resultsFor->__invoke($payload);
-      }
+      '__construct' => function($resultsFor) { $this->resultsFor= $resultsFor; },
+      'commit'      => function($payload) { return $this->resultsFor->__invoke($payload); },
+      'close'       => function() { /* NOOP */ }
     ]));
   }
 

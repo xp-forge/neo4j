@@ -55,4 +55,9 @@ class HttpProtocol extends Protocol {
       throw new UnexpectedResponse(['Unexpected HTTP response status '.$res->statusCode(), $res->readData().'...']);
     }
   }
+
+  /** @return void */
+  public function close() {
+    // NOOP
+  }
 }

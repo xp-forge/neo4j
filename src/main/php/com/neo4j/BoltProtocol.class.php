@@ -129,4 +129,9 @@ class BoltProtocol extends Protocol {
     }
     return $r;
   }
+
+  /** @return void */
+  public function close() {
+    $this->sock->isConnected() && $this->socket->close();
+  }
 }

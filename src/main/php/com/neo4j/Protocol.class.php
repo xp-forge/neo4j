@@ -8,7 +8,7 @@ use peer\URL;
  *
  * @test  xp://com.neo4j.unittest.ProtocolTest
  */
-abstract class Protocol {
+abstract class Protocol implements \lang\Closeable {
 
   /**
    * Factory method
