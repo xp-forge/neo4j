@@ -79,7 +79,8 @@ class BoltProtocol extends Protocol {
     $this->send(self::INIT, nameof($this), $this->init);
     $answer= $this->receive();
     if (self::SUCCESS !== $answer{1}) {
-      throw new CannotAuthenticate([$this->serialization->unserialize($answer)]);
+      $offset= 2;
+      throw new CannotAuthenticate([$this->serialization->unserialize($answer, $offset)]);
     }
   }
 
