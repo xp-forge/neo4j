@@ -84,7 +84,7 @@ class Cypher {
         $offset+= $span + 1;
         if ($offset >= $length) break;
 
-        if (is_numeric($format{$offset})) {
+        if (is_numeric($format[$offset])) {
           $span= strcspn($format, '$', $offset);
           $pos= (int)substr($format, $offset, $span) - 1;
           $offset+= $span + 1;
@@ -92,7 +92,7 @@ class Cypher {
           $pos= $arg++;
         }
 
-        switch ($format{$offset}) {
+        switch ($format[$offset]) {
           case 'd': $return.= '{P'.$pos.'}'; $params['P'.$pos]= $this->int($args[$pos]); break;
           case 'f': $return.= '{P'.$pos.'}'; $params['P'.$pos]= $this->float($args[$pos]); break;
           case 's': $return.= '{P'.$pos.'}'; $params['P'.$pos]= $this->string($args[$pos]); break;
@@ -101,7 +101,7 @@ class Cypher {
           case 'l': $return.= '`'.str_replace('`', '``', $args[$pos]).'`'; break;
           case 'c': $return.= $args[$pos]; break;
           case '%': $return.= '%'; break;
-          default: throw new FormatException('Unknown format specifier %'.$format{$offset});
+          default: throw new FormatException('Unknown format specifier %'.$format[$offset]);
         }
 
         $offset++;
