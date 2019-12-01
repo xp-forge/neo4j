@@ -1,9 +1,7 @@
 <?php namespace com\neo4j\unittest;
 
-use com\neo4j\Graph;
-use com\neo4j\QueryFailed;
-use lang\FormatException;
-use lang\IndexOutOfBoundsException;
+use com\neo4j\{Graph, QueryFailed};
+use lang\{FormatException, IndexOutOfBoundsException};
 use peer\URL;
 use peer\http\HttpConnection;
 use unittest\TestCase;

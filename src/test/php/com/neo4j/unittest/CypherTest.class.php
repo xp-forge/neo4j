@@ -1,8 +1,7 @@
 <?php namespace com\neo4j\unittest;
 
 use com\neo4j\Cypher;
-use lang\FormatException;
-use lang\IndexOutOfBoundsException;
+use lang\{FormatException, IndexOutOfBoundsException};
 
 class CypherTest extends \unittest\TestCase {
   private $fixture;

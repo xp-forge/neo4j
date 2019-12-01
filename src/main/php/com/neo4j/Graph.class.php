@@ -1,11 +1,7 @@
 <?php namespace com\neo4j;
 
-use peer\http\HttpConnection;
-use peer\http\HttpRequest;
-use peer\http\RequestData;
-use text\json\Json;
-use text\json\Format;
-use text\json\StreamInput;
+use peer\http\{HttpConnection, HttpRequest, RequestData};
+use text\json\{Format, Json, StreamInput};
 
 /**
  * Neo4J interface using its HTTP API
