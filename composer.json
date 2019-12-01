@@ -6,13 +6,13 @@
   "description" : "Neo4J connectivity for XP Framework",
   "keywords": ["module", "xp"],
   "require" : {
-    "xp-framework/core": "^9.0 | ^8.0 | ^7.0 | ^6.5",
+    "xp-framework/core": "^10.0 | ^9.0 | ^8.0 | ^7.0 | ^6.5",
     "xp-framework/http": "^9.0 | ^8.0",
     "xp-forge/json": "^3.0 | ^2.2",
     "php" : ">=5.6.0"
   },
   "require-dev" : {
-    "xp-framework/unittest": "^9.0 | ^8.0 | ^7.0 | ^6.5"
+    "xp-framework/unittest": "^11.0 | ^10.0 | ^9.0 | ^8.0 | ^7.0 | ^6.5"
   },
   "autoload" : {
     "files" : ["src/main/php/autoload.php"]
