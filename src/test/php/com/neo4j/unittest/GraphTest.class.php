@@ -6,8 +6,9 @@ use lang\FormatException;
 use lang\IndexOutOfBoundsException;
 use peer\URL;
 use peer\http\HttpConnection;
+use unittest\TestCase;
 
-class GraphTest extends \unittest\TestCase {
+class GraphTest extends TestCase {
   public static $ROW = ['columns' => ['id(n)'], 'data' => [['row' => [6], 'meta' => [null]]]];
   private static $ECHO;
 
@@ -17,7 +18,7 @@ class GraphTest extends \unittest\TestCase {
       foreach ($payload['statements'] as $s) {
         $results[]= [
           'columns' => ['query', 'params'],
-          'data'    => [['row' => [$s['statement'], isset($s['parameters']) ? $s['parameters'] : null], 'meta' => [null]]]
+          'data'    => [['row' => [$s['statement'], $s['parameters'] ?? null], 'meta' => [null]]]
         ];
       }
       return ['results' => $results, 'errors'  => []];

@@ -3,6 +3,12 @@ Neo4J for XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 1.0.0 / 2019-12-01
+
+* Implemented xp-framework/rfc#334: Drop PHP 5.6. The minimum required
+  PHP version is now 7.0.0!
+  (@thekid)
+
 ## 0.2.1 / 2019-12-01
 
 * Made compatible with XP 10 - @thekid
