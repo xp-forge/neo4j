@@ -4,7 +4,7 @@ use com\neo4j\{Graph, QueryFailed};
 use lang\{FormatException, IndexOutOfBoundsException};
 use peer\URL;
 use peer\http\HttpConnection;
-use unittest\TestCase;
+use unittest\{Expect, Test, TestCase};
 
 class GraphTest extends TestCase {
   public static $ROW = ['columns' => ['id(n)'], 'data' => [['row' => [6], 'meta' => [null]]]];
@@ -36,22 +36,22 @@ class GraphTest extends TestCase {
     ]);
   }
 
-  #[@test]
+  #[Test]
   public function can_create() {
     new Graph('http://localhost:7474/db/data');
   }
 
-  #[@test]
+  #[Test]
   public function can_create_with_url() {
     new Graph(new URL('http://localhost:7474/db/data'));
   }
 
-  #[@test]
+  #[Test]
   public function can_create_with_http_connection() {
     new Graph(new HttpConnection('http://localhost:7474/db/data'));
   }
 
-  #[@test]
+  #[Test]
   public function query_returns_result() {
     $fixture= $this->newFixture(function($payload) {
       return ['results' => [GraphTest::$ROW], 'errors' => []];
@@ -59,7 +59,7 @@ class GraphTest extends TestCase {
     $this->assertEquals([['id(n)' => 6]], $fixture->query('...'));
   }
 
-  #[@test, @expect(QueryFailed::class)]
+  #[Test, Expect(QueryFailed::class)]
   public function query_raises_error() {
     $fixture= $this->newFixture(function($payload) {
       return ['results' => [], 'errors' => [['code' => 'Neo.ClientError.Statement.SyntaxError', 'message' => '...']]];
@@ -67,7 +67,7 @@ class GraphTest extends TestCase {
     $fixture->query('...');
   }
 
-  #[@test]
+  #[Test]
   public function query_formatted() {
     $this->assertEquals(
       [['query' => 'match (n:{id:{P0}})', 'params' => ['P0' => 1549]]],
@@ -75,7 +75,7 @@ class GraphTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function query_parameterized() {
     $this->assertEquals(
       [['query' => 'create (n {props}) return n', 'params' => ['props' => ['name' => 'Test']]]],
@@ -83,7 +83,7 @@ class GraphTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function execute_returns_result() {
     $fixture= $this->newFixture(function($payload) {
       return ['results' => [GraphTest::$ROW], 'errors' => []];
@@ -91,7 +91,7 @@ class GraphTest extends TestCase {
     $this->assertEquals([GraphTest::$ROW], $fixture->execute(['...']));
   }
 
-  #[@test, @expect(QueryFailed::class)]
+  #[Test, Expect(QueryFailed::class)]
   public function execute_raises_error() {
     $fixture= $this->newFixture(function($payload) {
       return ['results' => [], 'errors' => [['code' => 'Neo.ClientError.Statement.SyntaxError', 'message' => '...']]];
@@ -99,7 +99,7 @@ class GraphTest extends TestCase {
     $fixture->execute(['...']);
   }
 
-  #[@test]
+  #[Test]
   public function execute_one() {
     $this->assertEquals(
       [[
@@ -110,7 +110,7 @@ class GraphTest extends TestCase {
     );
   }
 
-  #[@test]
+  #[Test]
   public function execute_multiple() {
     $this->assertEquals(
       [[
