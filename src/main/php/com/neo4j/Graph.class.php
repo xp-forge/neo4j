@@ -1,5 +1,6 @@
 <?php namespace com\neo4j;
 
+use lang\Value;
 use peer\http\{HttpConnection, HttpRequest, RequestData};
 use text\json\{Format, Json, StreamInput};
 
@@ -10,7 +11,7 @@ use text\json\{Format, Json, StreamInput};
  * @see   https://neo4j.com/blog/streaming-rest-api-interview-with-michael-hunger/
  * @test  xp://com.neo4j.unittest.GraphTest
  */
-class Graph implements \lang\Value {
+class Graph implements Value {
   private $conn, $cypher, $json, $base;
 
   /**
@@ -81,10 +82,38 @@ class Graph implements \lang\Value {
    *
    * @param  string $cypher
    * @param  var... $args
-   * @return iterable
+   * @return var[]
    */
   public function query($cypher, ... $args) {
-    return iterator_to_array($this->open($cypher, ...$args));
+    $return= [];
+    $result= $this->execute([$this->cypher->format($cypher, ...$args)])[0];
+    foreach ($result['data'] as $data) {
+      $record= [];
+      foreach ($data['row'] as $i => $value) {
+        $record[$result['columns'][$i]]= $value;
+      }
+      $return[]= $record;
+    }
+    return $return;
+  }
+
+  /**
+   * Runs a single query and returns its single result, or NULL
+   *
+   * @param  string $cypher
+   * @param  var... $args
+   * @return var
+   */
+  public function fetch($cypher, ... $args) {
+    $result= $this->execute([$this->cypher->format($cypher, ...$args)])[0];
+    foreach ($result['data'] as $data) {
+      $record= [];
+      foreach ($data['row'] as $i => $value) {
+        $record[$result['columns'][$i]]= $value;
+      }
+      return $record;
+    }
+    return null;
   }
 
   /**
@@ -108,14 +137,10 @@ class Graph implements \lang\Value {
   }
 
   /** @return string */
-  public function toString() {
-    return nameof($this).'(->'.$this->conn->toString().')';
-  }
+  public function toString() { return nameof($this).'(->'.$this->conn->toString().')'; }
 
   /** @return string */
-  public function hashCode() {
-    return spl_object_hash($this);
-  }
+  public function hashCode() { return spl_object_hash($this); }
 
   /**
    * Comparison
