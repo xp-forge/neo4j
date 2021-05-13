@@ -108,6 +108,14 @@ class GraphTest extends TestCase {
     $this->assertEquals(null, $fixture->fetch('...'));
   }
 
+  #[Test, Expect(QueryFailed::class)]
+  public function fetch_raises_error() {
+    $fixture= $this->newFixture(function($payload) {
+      return ['results' => [], 'errors' => [['code' => 'Neo.ClientError.Statement.SyntaxError', 'message' => '...']]];
+    });
+    $fixture->fetch('...');
+  }
+
   #[Test]
   public function execute_returns_result() {
     $fixture= $this->newFixture(function($payload) {
