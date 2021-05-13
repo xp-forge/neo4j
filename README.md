@@ -25,6 +25,14 @@ foreach ($q as $record) {
 }
 ```
 
+To retrieve single results (or *NULL* if nothing is found), use `fetch()`:
+
+```php
+if ($topic= $g->open('MATCH (t:Topic{id:%s}) RETURN t', $id)) {
+  Console::writeLine('Found topic ', $topic);
+}
+```
+
 Formatting parameters uses *printf*-like format tokens. These will take care of proper escaping and type casting:
 
 ```php
