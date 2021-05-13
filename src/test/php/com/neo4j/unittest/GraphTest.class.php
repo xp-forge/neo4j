@@ -4,9 +4,9 @@ use com\neo4j\{Graph, QueryFailed};
 use lang\{FormatException, IndexOutOfBoundsException};
 use peer\URL;
 use peer\http\HttpConnection;
-use unittest\{Expect, Test, TestCase};
+use unittest\{Assert, Expect, Test, TestCase};
 
-class GraphTest extends TestCase {
+class GraphTest {
   public static $ROW = ['columns' => ['id(n)'], 'data' => [['row' => [6], 'meta' => [null]]]];
   public static $EMPTY = ['columns' => [], 'data' => []];
   private static $ECHO;
@@ -57,7 +57,7 @@ class GraphTest extends TestCase {
     $fixture= $this->newFixture(function($payload) {
       return ['results' => [self::$ROW], 'errors' => []];
     });
-    $this->assertEquals([['id(n)' => 6]], $fixture->query('...'));
+    Assert::equals([['id(n)' => 6]], $fixture->query('...'));
   }
 
   #[Test]
@@ -65,7 +65,7 @@ class GraphTest extends TestCase {
     $fixture= $this->newFixture(function($payload) {
       return ['results' => [self::$EMPTY], 'errors' => []];
     });
-    $this->assertEquals([], $fixture->query('...'));
+    Assert::equals([], $fixture->query('...'));
   }
 
   #[Test, Expect(QueryFailed::class)]
@@ -78,7 +78,7 @@ class GraphTest extends TestCase {
 
   #[Test]
   public function query_formatted() {
-    $this->assertEquals(
+    Assert::equals(
       [['query' => 'match (n:{id:{P0}})', 'params' => ['P0' => 1549]]],
       $this->newFixture(self::$ECHO)->query('match (n:{id:%v})', 1549)
     );
@@ -86,7 +86,7 @@ class GraphTest extends TestCase {
 
   #[Test]
   public function query_parameterized() {
-    $this->assertEquals(
+    Assert::equals(
       [['query' => 'create (n {props}) return n', 'params' => ['props' => ['name' => 'Test']]]],
       $this->newFixture(self::$ECHO)->query('create (n {props}) return n', ['props' => ['name' => 'Test']])
     );
@@ -97,7 +97,7 @@ class GraphTest extends TestCase {
     $fixture= $this->newFixture(function($payload) {
       return ['results' => [self::$ROW], 'errors' => []];
     });
-    $this->assertEquals(['id(n)' => 6], $fixture->fetch('...'));
+    Assert::equals(['id(n)' => 6], $fixture->fetch('...'));
   }
 
   #[Test]
@@ -105,7 +105,7 @@ class GraphTest extends TestCase {
     $fixture= $this->newFixture(function($payload) {
       return ['results' => [self::$EMPTY], 'errors' => []];
     });
-    $this->assertEquals(null, $fixture->fetch('...'));
+    Assert::equals(null, $fixture->fetch('...'));
   }
 
   #[Test, Expect(QueryFailed::class)]
@@ -121,7 +121,7 @@ class GraphTest extends TestCase {
     $fixture= $this->newFixture(function($payload) {
       return ['results' => [self::$ROW], 'errors' => []];
     });
-    $this->assertEquals([self::$ROW], $fixture->execute(['...']));
+    Assert::equals([self::$ROW], $fixture->execute(['...']));
   }
 
   #[Test, Expect(QueryFailed::class)]
@@ -134,7 +134,7 @@ class GraphTest extends TestCase {
 
   #[Test]
   public function execute_one() {
-    $this->assertEquals(
+    Assert::equals(
       [[
         'columns' => ['query', 'params'],
         'data'    => [['row' => ['match (n) return n', null], 'meta' => [null]]]
@@ -145,7 +145,7 @@ class GraphTest extends TestCase {
 
   #[Test]
   public function execute_multiple() {
-    $this->assertEquals(
+    Assert::equals(
       [[
         'columns' => ['query', 'params'],
         'data'    => [['row' => ['match (n) return n', null], 'meta' => [null]]]
