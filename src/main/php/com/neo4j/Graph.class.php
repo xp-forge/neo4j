@@ -1,5 +1,6 @@
 <?php namespace com\neo4j;
 
+use lang\Value;
 use peer\http\{HttpConnection, HttpRequest, RequestData};
 use text\json\{Format, Json, StreamInput};
 
@@ -10,7 +11,7 @@ use text\json\{Format, Json, StreamInput};
  * @see   https://neo4j.com/blog/streaming-rest-api-interview-with-michael-hunger/
  * @test  xp://com.neo4j.unittest.GraphTest
  */
-class Graph implements \lang\Value {
+class Graph implements Value {
   private $conn, $cypher, $json, $base;
 
   /**
