@@ -8,6 +8,7 @@ use unittest\{Expect, Test, TestCase};
 
 class GraphTest extends TestCase {
   public static $ROW = ['columns' => ['id(n)'], 'data' => [['row' => [6], 'meta' => [null]]]];
+  public static $EMPTY = ['columns' => [], 'data' => []];
   private static $ECHO;
 
   static function __static() {
@@ -52,11 +53,19 @@ class GraphTest extends TestCase {
   }
 
   #[Test]
-  public function query_returns_result() {
+  public function query_returns_results() {
     $fixture= $this->newFixture(function($payload) {
-      return ['results' => [GraphTest::$ROW], 'errors' => []];
+      return ['results' => [self::$ROW], 'errors' => []];
     });
     $this->assertEquals([['id(n)' => 6]], $fixture->query('...'));
+  }
+
+  #[Test]
+  public function query_returns_empty_array_for_no_results() {
+    $fixture= $this->newFixture(function($payload) {
+      return ['results' => [self::$EMPTY], 'errors' => []];
+    });
+    $this->assertEquals([], $fixture->query('...'));
   }
 
   #[Test, Expect(QueryFailed::class)]
@@ -84,11 +93,27 @@ class GraphTest extends TestCase {
   }
 
   #[Test]
+  public function fetch_returns_single_result() {
+    $fixture= $this->newFixture(function($payload) {
+      return ['results' => [self::$ROW], 'errors' => []];
+    });
+    $this->assertEquals(['id(n)' => 6], $fixture->fetch('...'));
+  }
+
+  #[Test]
+  public function fetch_returns_null_for_no_results() {
+    $fixture= $this->newFixture(function($payload) {
+      return ['results' => [self::$EMPTY], 'errors' => []];
+    });
+    $this->assertEquals(null, $fixture->fetch('...'));
+  }
+
+  #[Test]
   public function execute_returns_result() {
     $fixture= $this->newFixture(function($payload) {
-      return ['results' => [GraphTest::$ROW], 'errors' => []];
+      return ['results' => [self::$ROW], 'errors' => []];
     });
-    $this->assertEquals([GraphTest::$ROW], $fixture->execute(['...']));
+    $this->assertEquals([self::$ROW], $fixture->execute(['...']));
   }
 
   #[Test, Expect(QueryFailed::class)]

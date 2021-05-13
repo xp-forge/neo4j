@@ -88,6 +88,20 @@ class Graph implements \lang\Value {
   }
 
   /**
+   * Runs a single query and returns its single result, or NULL
+   *
+   * @param  string $cypher
+   * @param  var... $args
+   * @return var
+   */
+  public function fetch($cypher, ... $args) {
+    foreach ($this->open($cypher, ...$args) as $result) {
+      return $result;
+    }
+    return null;
+  }
+
+  /**
    * Executes multiple statements
    *
    * @param  [:var][] $statements
