@@ -81,10 +81,19 @@ class Graph implements \lang\Value {
    *
    * @param  string $cypher
    * @param  var... $args
-   * @return iterable
+   * @return var[]
    */
   public function query($cypher, ... $args) {
-    return iterator_to_array($this->open($cypher, ...$args));
+    $return= [];
+    $result= $this->execute([$this->cypher->format($cypher, ...$args)])[0];
+    foreach ($result['data'] as $data) {
+      $record= [];
+      foreach ($data['row'] as $i => $value) {
+        $record[$result['columns'][$i]]= $value;
+      }
+      $return[]= $record;
+    }
+    return $return;
   }
 
   /**
@@ -95,8 +104,13 @@ class Graph implements \lang\Value {
    * @return var
    */
   public function fetch($cypher, ... $args) {
-    foreach ($this->open($cypher, ...$args) as $result) {
-      return $result;
+    $result= $this->execute([$this->cypher->format($cypher, ...$args)])[0];
+    foreach ($result['data'] as $data) {
+      $record= [];
+      foreach ($data['row'] as $i => $value) {
+        $record[$result['columns'][$i]]= $value;
+      }
+      return $record;
     }
     return null;
   }
@@ -122,14 +136,10 @@ class Graph implements \lang\Value {
   }
 
   /** @return string */
-  public function toString() {
-    return nameof($this).'(->'.$this->conn->toString().')';
-  }
+  public function toString() { return nameof($this).'(->'.$this->conn->toString().')'; }
 
   /** @return string */
-  public function hashCode() {
-    return spl_object_hash($this);
-  }
+  public function hashCode() { return spl_object_hash($this); }
 
   /**
    * Comparison
