@@ -3,6 +3,11 @@ Neo4J for XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 1.1.0 / 2021-05-13
+
+* Merged PR #5: Add fetch() method to return single result, or NULL
+  (@thekid)
+
 ## 1.0.1 / 2020-04-10
 
 * Made compatible with new library versions for HTTP and JSON - @thekid
