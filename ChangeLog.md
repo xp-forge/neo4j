@@ -3,6 +3,11 @@ Neo4J for XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 1.1.1 / 2021-10-21
+
+* Made library compatible with XP 11, `xp-forge/json` version 5.0.0
+  (@thekid)
+
 ## 1.1.0 / 2021-05-13
 
 * Merged PR #5: Add fetch() method to return single result, or NULL
