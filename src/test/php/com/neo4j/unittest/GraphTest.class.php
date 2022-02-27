@@ -26,15 +26,18 @@ class GraphTest {
 
   /** Creates a fixture with a given function for producing results */
   private function newFixture($resultsFor= null) {
-    return newinstance(Graph::class, [$resultsFor ?: function($payload) { return null; }], [
-      '__construct' => function($resultsFor) {
+    return new class($resultsFor) extends Graph {
+      private $resultsFor;
+
+      public function __construct($resultsFor) {
         parent::__construct('http://localhost:7474/db/data');
         $this->resultsFor= $resultsFor;
-      },
-      'commit' => function($payload) {
-        return $this->resultsFor->__invoke($payload);
       }
-    ]);
+
+      public function commit($payload) {
+        return $this->resultsFor ? ($this->resultsFor)($payload) : null;
+      }
+    };
   }
 
   #[Test]

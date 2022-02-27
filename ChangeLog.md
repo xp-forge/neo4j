@@ -3,6 +3,10 @@ Neo4J for XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 1.1.2 / 2022-02-27
+
+* Fixed "Creation of dynamic property" warnings in PHP 8.2 - @thekid
+
 ## 1.1.1 / 2021-10-21
 
 * Made library compatible with XP 11, `xp-forge/json` version 5.0.0
