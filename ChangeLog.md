@@ -3,6 +3,8 @@ Neo4J for XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+* Merged PR #6: Migrate to new testing library - @thekid
+
 ## 1.1.2 / 2022-02-27
 
 * Fixed "Creation of dynamic property" warnings in PHP 8.2 - @thekid
