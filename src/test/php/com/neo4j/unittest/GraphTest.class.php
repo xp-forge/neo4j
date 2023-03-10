@@ -4,7 +4,7 @@ use com\neo4j\{Graph, QueryFailed};
 use lang\{FormatException, IndexOutOfBoundsException};
 use peer\URL;
 use peer\http\HttpConnection;
-use unittest\{Assert, Expect, Test, TestCase};
+use test\{Assert, Expect, Test, TestCase};
 
 class GraphTest {
   public static $ROW = ['columns' => ['id(n)'], 'data' => [['row' => [6], 'meta' => [null]]]];

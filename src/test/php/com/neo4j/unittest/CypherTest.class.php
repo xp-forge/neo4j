@@ -2,7 +2,7 @@
 
 use com\neo4j\Cypher;
 use lang\{FormatException, IndexOutOfBoundsException};
-use unittest\{Assert, Before, Expect, Test, Values};
+use test\{Assert, Before, Expect, Test, Values};
 
 class CypherTest {
   private $fixture;
@@ -44,7 +44,7 @@ class CypherTest {
     $this->fixture= new Cypher();
   }
 
-  #[Test, Values('fixtures')]
+  #[Test, Values(from: 'fixtures')]
   public function format($query, $params, $format, ... $args) {
     Assert::equals(
       ['statement' => $query, 'parameters' => $params],
