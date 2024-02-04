@@ -3,6 +3,7 @@ Neo4J for XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+* Added PHP 8.4 to the test matrix - @thekid
 * Merged PR #6: Migrate to new testing library - @thekid
 
 ## 1.1.2 / 2022-02-27
