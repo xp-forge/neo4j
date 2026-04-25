@@ -3,6 +3,8 @@ Neo4J for XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 2.1.0 / 2026-04-25
+
 * Made compatible with `xp-framework/http` version 11.0 - @thekid
 * Added PHP 8.6 to the test matrix - @thekid
 
