@@ -140,7 +140,7 @@ class Graph implements Value {
   public function toString() { return nameof($this).'(->'.$this->conn->toString().')'; }
 
   /** @return string */
-  public function hashCode() { return spl_object_hash($this); }
+  public function hashCode() { return spl_object_id($this); }
 
   /**
    * Comparison
