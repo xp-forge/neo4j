@@ -3,6 +3,10 @@ Neo4J for XP Framework ChangeLog
 
 ## ?.?.? / ????-??-??
 
+## 2.2.0 / 2026-10-17
+
+* Added compatibility with `xp-forge/json` version 7.0+ - @thekid
+
 ## 2.1.0 / 2026-04-25
 
 * Made compatible with `xp-framework/http` version 11.0 - @thekid
